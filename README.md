@@ -1,6 +1,6 @@
 # DSA MONKEY – Visualizing Data Structures & Algorithms
 
-Algo Lab is an interactive web application designed to teach core Data Structures and Algorithms through clear visualizations and step-by-step animations. Instead of reading static explanations, users can see how algorithms operate internally.
+DSA MONKEY is an interactive web application designed to teach core Data Structures and Algorithms through clear visualizations and step-by-step animations. Instead of reading static explanations, users can see how algorithms operate internally.
 
 The platform focuses on a small set of fundamental algorithms explained with high clarity, interactive controls, and visual demonstrations.
 
@@ -10,7 +10,7 @@ The interface follows a Neo-Brutalism inspired design combined with retro comput
 
 # What This Project Does
 
-Algo Lab helps users understand algorithm behavior by visualizing each step of execution.
+DSA MONKEY helps users understand algorithm behavior by visualizing each step of execution.
 
 Users can:
 
