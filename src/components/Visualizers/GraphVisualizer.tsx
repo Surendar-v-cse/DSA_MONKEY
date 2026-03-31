@@ -36,30 +36,22 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
   const getTraversalOrder = useCallback((type: 'bfs' | 'dfs', graph: Node[]) => {
     const order: number[] = [];
     const visited = new Set<number>();
-    
     if (type === 'bfs') {
       const queue = [0];
       visited.add(0);
       while (queue.length > 0) {
         const nodeIdx = queue.shift()!;
         order.push(nodeIdx);
-        const node = graph[nodeIdx];
-        for (const neighbor of node.neighbors) {
-          if (!visited.has(neighbor)) {
-            visited.add(neighbor);
-            queue.push(neighbor);
-          }
+        for (const neighbor of graph[nodeIdx].neighbors) {
+          if (!visited.has(neighbor)) { visited.add(neighbor); queue.push(neighbor); }
         }
       }
     } else {
       const dfs = (nodeIdx: number) => {
         visited.add(nodeIdx);
         order.push(nodeIdx);
-        const node = graph[nodeIdx];
-        for (const neighbor of node.neighbors) {
-          if (!visited.has(neighbor)) {
-            dfs(neighbor);
-          }
+        for (const neighbor of graph[nodeIdx].neighbors) {
+          if (!visited.has(neighbor)) dfs(neighbor);
         }
       };
       dfs(0);
@@ -75,21 +67,11 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
     setTraversalOrder(getTraversalOrder(traversalType, currentGraph));
   }, [traversalType, getTraversalOrder, setStep, currentGraph]);
 
-  useEffect(() => {
-    reset();
-  }, [data, traversalType, reset]);
-
-  useEffect(() => {
-    reset();
-  }, [traversalType, reset]);
-
-  useEffect(() => {
-    if (step === 0) reset();
-  }, [step, reset]);
+  useEffect(() => { reset(); }, [data, traversalType, reset]);
+  useEffect(() => { if (step === 0) reset(); }, [step, reset]);
 
   useEffect(() => {
     if (!isPlaying || isDone) return;
-
     const timer = setTimeout(() => {
       if (step < traversalOrder.length) {
         const nextNodeId = traversalOrder[step];
@@ -101,20 +83,20 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
         setCurrentNode(null);
       }
     }, speed);
-
     return () => clearTimeout(timer);
   }, [isPlaying, isDone, speed, step, traversalOrder, setStep]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center gap-8">
-      <div className="flex gap-4 bg-white border-4 border-black p-2 shadow-neo-sm">
+    <div className="w-full h-full flex flex-col items-center gap-3 sm:gap-8">
+      {/* BFS / DFS toggle */}
+      <div className="flex gap-1 sm:gap-4 bg-white border-2 sm:border-4 border-black p-1 sm:p-2 shadow-neo-xs sm:shadow-neo-sm">
         {(['bfs', 'dfs'] as const).map(type => (
           <button
             key={type}
             onClick={() => setTraversalType(type)}
             className={`
-              px-4 py-1 font-mono font-bold text-xs uppercase border-2 border-black transition-all
-              ${traversalType === type ? 'bg-neo-blue text-white shadow-neo-sm -translate-y-1' : 'bg-white hover:bg-gray-100'}
+              px-3 sm:px-4 py-1 font-mono font-bold text-[10px] sm:text-xs uppercase border-2 border-black transition-all
+              ${traversalType === type ? 'bg-neo-blue text-white shadow-neo-xs -translate-y-0.5 sm:-translate-y-1' : 'bg-white hover:bg-gray-100'}
             `}
           >
             {type.toUpperCase()}
@@ -122,51 +104,54 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
         ))}
       </div>
 
+      {/* SVG — scales to container */}
       <div className="flex-1 w-full flex items-center justify-center">
-        <svg width="400" height="300" viewBox="-200 -120 400 240" className="overflow-visible">
+        <svg
+          viewBox="-160 -110 320 240"
+          className="w-full h-full max-h-[220px] sm:max-h-[300px] overflow-visible"
+          preserveAspectRatio="xMidYMid meet"
+        >
           {/* Edges */}
-          {currentGraph.map(node => (
+          {currentGraph.map(node =>
             node.neighbors.map(neighborIdx => {
               const neighbor = currentGraph[neighborIdx];
-              if (neighborIdx < node.id) return null; // Avoid double lines
+              if (neighborIdx < node.id) return null;
               return (
                 <line
                   key={`${node.id}-${neighborIdx}`}
                   x1={node.x} y1={node.y}
                   x2={neighbor.x} y2={neighbor.y}
-                  stroke="black" strokeWidth="4"
-                  strokeDasharray={visitedNodes.includes(node.id) && visitedNodes.includes(neighborIdx) ? "0" : "8 4"}
+                  stroke="black" strokeWidth="3"
+                  strokeDasharray={
+                    visitedNodes.includes(node.id) && visitedNodes.includes(neighborIdx) ? '0' : '8 4'
+                  }
                   className="transition-all duration-500"
                 />
               );
             })
-          ))}
+          )}
 
           {/* Nodes */}
           {currentGraph.map(node => {
             const isActive = currentNode === node.id;
             const isVisited = visitedNodes.includes(node.id);
-
             return (
               <motion.g
                 key={node.id}
                 initial={false}
-                animate={{
-                  scale: isActive ? 1.2 : 1,
-                }}
+                animate={{ scale: isActive ? 1.2 : 1 }}
                 style={{ transformOrigin: `${node.x}px ${node.y}px` }}
               >
                 <circle
-                  cx={node.x} cy={node.y} r="25"
-                  className={`
-                    border-4 stroke-black stroke-[4] transition-colors
-                    ${isActive ? 'fill-neo-yellow' : isVisited ? 'fill-neo-green' : 'fill-white'}
-                  `}
+                  cx={node.x} cy={node.y} r="22"
+                  className={`stroke-black stroke-[3] transition-colors ${isActive ? 'fill-neo-yellow' : isVisited ? 'fill-neo-green' : 'fill-white'}`}
                 />
                 <text
                   x={node.x} y={node.y}
-                  textAnchor="middle" dy=".3em"
-                  className="font-display font-black text-sm pointer-events-none"
+                  textAnchor="middle" dy=".35em"
+                  fontSize="12"
+                  fontWeight="900"
+                  className="pointer-events-none"
                 >
                   {node.id}
                 </text>
@@ -176,10 +161,11 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
         </svg>
       </div>
 
-      <div className="w-full bg-neo-black p-4 border-4 border-black shadow-neo-sm">
-        <div className="flex items-center gap-3">
-          <div className="w-3 h-3 rounded-full bg-neo-green animate-pulse" />
-          <p className="font-mono text-neo-green text-sm uppercase tracking-wider">
+      {/* Status bar */}
+      <div className="w-full bg-neo-black p-2 sm:p-4 border-2 sm:border-4 border-black shadow-neo-xs sm:shadow-neo-sm">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="w-2 h-2 rounded-full bg-neo-green animate-pulse shrink-0" />
+          <p className="font-mono text-neo-green text-[10px] sm:text-sm uppercase tracking-wider truncate">
             {`VISITED: ${visitedNodes.join(' → ')}`}
           </p>
         </div>
