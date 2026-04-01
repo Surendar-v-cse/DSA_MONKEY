@@ -114,23 +114,23 @@ export default function BSTVisualizer({ isPlaying, speed, step, setStep, data }:
   const positionedNodes = useMemo(() => getPositions(), [getPositions]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center gap-3 sm:gap-6">
+    <div className="w-full h-full flex flex-col items-center gap-2 sm:gap-6">
 
       {/* Controls — wrap on mobile */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-4 bg-white border-2 sm:border-4 border-black p-2 sm:p-4 shadow-neo-xs sm:shadow-neo-sm z-10 w-full sm:w-auto justify-center">
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-4 bg-white border-2 sm:border-4 border-black p-2 sm:p-4 shadow-neo-xs sm:shadow-neo-sm z-10 w-full sm:w-auto justify-center">
         <input
           type="number"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Value"
-          className="neo-input w-20 sm:w-24 text-sm"
+          className="neo-input w-16 sm:w-24 text-sm py-1.5"
           onKeyDown={(e) => e.key === 'Enter' && handleInsert()}
         />
         <Button variant="accent" size="sm" onClick={handleInsert} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-          <Plus size={14} /> Insert
+          <Plus size={14} /> <span className="hidden xs:inline">Insert</span><span className="xs:hidden">+</span>
         </Button>
         <Button variant="outline" size="sm" onClick={handleDelete} className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
-          <Trash2 size={14} /> Delete
+          <Trash2 size={14} /> <span className="hidden xs:inline">Delete</span>
         </Button>
         <Button variant="outline" size="sm" onClick={handleReset}>
           <RotateCcw size={14} />
@@ -138,10 +138,10 @@ export default function BSTVisualizer({ isPlaying, speed, step, setStep, data }:
       </div>
 
       {/* SVG Tree */}
-      <div className="flex-1 w-full flex items-center justify-center bg-neo-gray/30 border-2 sm:border-4 border-black border-dashed relative overflow-hidden min-h-[160px] sm:min-h-[220px]">
+      <div className="flex-1 w-full flex items-center justify-center bg-neo-gray/30 border-2 sm:border-4 border-black border-dashed relative overflow-hidden min-h-[140px] sm:min-h-[220px]">
         <svg
-          viewBox="-220 -25 440 260"
-          className="w-full h-full max-h-[200px] sm:max-h-[280px] overflow-visible"
+          viewBox="-230 -30 460 270"
+          className="w-full h-full max-h-[170px] sm:max-h-[280px] overflow-visible"
           preserveAspectRatio="xMidYMid meet"
         >
           <AnimatePresence>

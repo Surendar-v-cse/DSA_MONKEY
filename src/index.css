@@ -24,10 +24,27 @@
 }
 
 @layer base {
+  /* Prevent overscroll bounce on iOS / mobile */
+  html {
+    overflow: hidden;
+    height: 100%;
+    /* Support safe-area-inset for notched devices */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
   body {
     @apply bg-neo-gray text-neo-black font-sans selection:bg-neo-yellow selection:text-neo-black relative;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+    overflow: hidden;
+    height: 100%;
+    /* Prevent rubber-band overscroll on iOS */
+    overscroll-behavior: none;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
   }
 
   body::before {
@@ -50,6 +67,16 @@
   h5,
   h6 {
     @apply font-display font-bold uppercase tracking-tight;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
 
@@ -80,6 +107,8 @@
 
   .neo-input {
     @apply bg-white border-2 sm:border-4 border-black px-3 sm:px-4 py-2 font-mono focus:outline-none focus:ring-2 sm:focus:ring-4 focus:ring-blue-500/20;
+    /* Prevent iOS zoom on input focus */
+    font-size: 16px;
   }
 
   /* Hide scrollbar cross-browser */
@@ -90,6 +119,26 @@
 
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Styled thin scrollbar for mobile overflow areas */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 2px;
   }
 
   .scanline {
@@ -124,5 +173,13 @@
     background-size: 100% 4px, 3px 100%;
     pointer-events: none;
     z-index: 50;
+  }
+
+  /* Mobile-friendly touch targets — ensure at least 44x44px tap area */
+  @media (max-width: 640px) {
+    button, [role="button"], a {
+      min-height: 36px;
+      min-width: 36px;
+    }
   }
 }

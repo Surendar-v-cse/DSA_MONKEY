@@ -87,7 +87,7 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
   }, [isPlaying, isDone, speed, step, traversalOrder, setStep]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center gap-3 sm:gap-8">
+    <div className="w-full h-full flex flex-col items-center gap-2 sm:gap-6">
       {/* BFS / DFS toggle */}
       <div className="flex gap-1 sm:gap-4 bg-white border-2 sm:border-4 border-black p-1 sm:p-2 shadow-neo-xs sm:shadow-neo-sm">
         {(['bfs', 'dfs'] as const).map(type => (
@@ -95,8 +95,8 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
             key={type}
             onClick={() => setTraversalType(type)}
             className={`
-              px-3 sm:px-4 py-1 font-mono font-bold text-[10px] sm:text-xs uppercase border-2 border-black transition-all
-              ${traversalType === type ? 'bg-neo-blue text-white shadow-neo-xs -translate-y-0.5 sm:-translate-y-1' : 'bg-white hover:bg-gray-100'}
+              px-4 sm:px-4 py-1.5 sm:py-1 font-mono font-bold text-[10px] sm:text-xs uppercase border-2 border-black transition-all
+              ${traversalType === type ? 'bg-neo-blue text-white shadow-neo-xs -translate-y-0.5 sm:-translate-y-1' : 'bg-white hover:bg-gray-100 active:bg-gray-200'}
             `}
           >
             {type.toUpperCase()}
@@ -105,10 +105,10 @@ export default function GraphVisualizer({ isPlaying, speed, step, setStep, data 
       </div>
 
       {/* SVG — scales to container */}
-      <div className="flex-1 w-full flex items-center justify-center">
+      <div className="flex-1 w-full flex items-center justify-center px-1">
         <svg
-          viewBox="-160 -110 320 240"
-          className="w-full h-full max-h-[220px] sm:max-h-[300px] overflow-visible"
+          viewBox="-170 -115 340 250"
+          className="w-full h-full max-h-[180px] sm:max-h-[300px] overflow-visible"
           preserveAspectRatio="xMidYMid meet"
         >
           {/* Edges */}
