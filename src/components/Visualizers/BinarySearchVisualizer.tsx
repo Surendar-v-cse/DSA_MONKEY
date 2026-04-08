@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface VisualizerProps {
   isPlaying: boolean;
   speed: number;
   step: number;
   setStep: (step: number) => void;
-  data?: { array: number[]; target: number };
+  data?: { array: number[], target: number };
 }
 
 const DEFAULT_DATA = { array: [2, 5, 7, 9, 12, 18, 21, 25, 30, 35, 40], target: 12 };
@@ -28,8 +28,13 @@ export default function BinarySearchVisualizer({ isPlaying, speed, step, setStep
     setStatus('Ready to search for ' + currentData.target);
   }, [setStep, currentData]);
 
-  useEffect(() => { reset(); }, [data, reset]);
-  useEffect(() => { if (step === 0) reset(); }, [step, reset]);
+  useEffect(() => {
+    reset();
+  }, [data, reset]);
+
+  useEffect(() => {
+    if (step === 0) reset();
+  }, [step, reset]);
 
   useEffect(() => {
     if (!isPlaying || found || low > high) return;
@@ -43,11 +48,12 @@ export default function BinarySearchVisualizer({ isPlaying, speed, step, setStep
         setStatus(`Found ${currentData.target} at index ${currentMid}!`);
       } else if (currentData.array[currentMid] < currentData.target) {
         setLow(currentMid + 1);
-        setStatus(`${currentData.array[currentMid]} < ${currentData.target}, search right.`);
+        setStatus(`${currentData.array[currentMid]} < ${currentData.target}, searching right half.`);
       } else {
         setHigh(currentMid - 1);
-        setStatus(`${currentData.array[currentMid]} > ${currentData.target}, search left.`);
+        setStatus(`${currentData.array[currentMid]} > ${currentData.target}, searching left half.`);
       }
+      
       setStep(step + 1);
     }, speed);
 
@@ -55,9 +61,8 @@ export default function BinarySearchVisualizer({ isPlaying, speed, step, setStep
   }, [isPlaying, low, high, found, speed, step, setStep, currentData]);
 
   return (
-    <div className="w-full flex flex-col items-center gap-6 sm:gap-12 px-1">
-      {/* Array cells */}
-      <div className="flex flex-wrap justify-center gap-1.5 sm:gap-4">
+    <div className="w-full max-w-4xl flex flex-col items-center gap-6 sm:gap-12">
+      <div className="flex flex-wrap justify-center gap-2 sm:gap-4 px-2">
         {currentData.array.map((val, idx) => {
           const isLow = idx === low;
           const isHigh = idx === high;
@@ -66,47 +71,38 @@ export default function BinarySearchVisualizer({ isPlaying, speed, step, setStep
           const isFound = found && idx === mid;
 
           return (
-            <div key={idx} className="flex flex-col items-center gap-1">
+            <div key={idx} className="flex flex-col items-center gap-1 sm:gap-2">
               <motion.div
                 layout
                 className={`
-                  w-9 h-9 sm:w-14 sm:h-14
-                  flex items-center justify-center
-                  border-2 sm:border-4 border-black
-                  font-display font-black text-sm sm:text-xl
-                  shadow-neo-xs sm:shadow-neo-sm
-                  transition-colors
-                  ${isFound
-                    ? 'bg-neo-green text-black'
-                    : isMid
-                      ? 'bg-neo-yellow text-black'
-                      : isExcluded
-                        ? 'bg-gray-100 text-gray-300 border-gray-300 shadow-none'
-                        : 'bg-white'}
+                  w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center border-2 sm:border-4 border-black font-display font-black text-sm sm:text-xl shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] sm:shadow-neo-sm transition-colors
+                  ${isFound ? 'bg-neo-green text-black' : isMid ? 'bg-neo-yellow text-black' : isExcluded ? 'bg-gray-100 text-gray-300 border-gray-300 shadow-none' : 'bg-white'}
                 `}
-                animate={{ scale: isMid ? 1.1 : 1, y: isMid ? -6 : 0 }}
+                animate={{
+                  scale: isMid ? 1.1 : 1,
+                  y: isMid ? -5 : 0,
+                }}
               >
                 {val}
               </motion.div>
-              <div className="h-4 flex flex-col items-center">
-                {isLow && <span className="text-[8px] sm:text-[10px] font-mono font-bold text-neo-blue">LO</span>}
+              <div className="h-4 sm:h-6 flex flex-col items-center">
+                {isLow && <span className="text-[8px] sm:text-[10px] font-mono font-bold text-neo-blue">LOW</span>}
                 {isMid && <span className="text-[8px] sm:text-[10px] font-mono font-bold text-neo-yellow">MID</span>}
-                {isHigh && <span className="text-[8px] sm:text-[10px] font-mono font-bold text-neo-red">HI</span>}
+                {isHigh && <span className="text-[8px] sm:text-[10px] font-mono font-bold text-neo-red">HIGH</span>}
               </div>
             </div>
           );
         })}
       </div>
 
-      {/* Status bar */}
-      <div className="w-full bg-neo-black p-2 sm:p-4 border-2 sm:border-4 border-black shadow-neo-xs sm:shadow-neo-sm">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="w-2 h-2 rounded-full bg-neo-green animate-pulse shrink-0" />
-          <p className="font-mono text-neo-green text-[10px] sm:text-sm uppercase tracking-wider truncate">
+      <div className="w-full bg-neo-black p-3 sm:p-4 border-4 border-black shadow-neo-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-neo-green animate-pulse" />
+          <p className="font-mono text-neo-green text-xs sm:text-sm uppercase tracking-wider truncate">
             {`STATUS: ${status}`}
           </p>
         </div>
-        <div className="mt-1 flex flex-wrap gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-mono text-neo-white/50">
+        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[8px] sm:text-[10px] font-mono text-neo-white/50">
           <span>LOW: {low}</span>
           <span>HIGH: {high}</span>
           <span>MID: {mid === -1 ? 'N/A' : mid}</span>
@@ -116,3 +112,4 @@ export default function BinarySearchVisualizer({ isPlaying, speed, step, setStep
     </div>
   );
 }
+
