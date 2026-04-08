@@ -173,9 +173,16 @@ export default function MainApp({ onBack }: MainAppProps) {
 
         {/* Main Content */}
         <main className="flex-1 flex flex-col min-w-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:20px_20px] overflow-y-auto">
-          {/* Visualization Area */}
           <div className="flex-1 p-3 sm:p-4 flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* 1. Visualization Panel (On Top) */}
+            <Panel title="Neural Visualization Matrix" className="flex-shrink-0 lg:flex-1 min-h-[400px] bg-white relative">
+              <div className="h-full w-full flex items-center justify-center overflow-auto p-4">
+                {visualizers[activeAlgo]}
+              </div>
+            </Panel>
+
+            {/* 2. Title and Controls Row (Middle) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border-4 border-black p-4 shadow-neo-sm">
               <div className="flex items-center gap-3">
                 <div className="w-full">
                   <h2 className="text-2xl sm:text-3xl font-display font-black uppercase tracking-tight">
@@ -209,7 +216,7 @@ export default function MainApp({ onBack }: MainAppProps) {
                 </div>
               </div>
 
-              <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-3 bg-white border-4 border-black p-3 shadow-neo-sm">
+              <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-3 bg-neo-gray/50 border-2 border-black p-2">
                 <div className="flex flex-col gap-1 px-1 min-w-[140px] flex-1">
                   <div className="flex justify-between items-center">
                     <span className="text-[10px] font-mono font-black uppercase">Exec_Speed</span>
@@ -225,12 +232,12 @@ export default function MainApp({ onBack }: MainAppProps) {
                     className="w-full h-2 bg-neo-gray border-2 border-black appearance-none cursor-pointer accent-neo-blue"
                   />
                 </div>
-                <div className="hidden xs:block h-10 w-1 bg-black" />
+                <div className="hidden xs:block h-10 w-0.5 bg-black/20" />
                 <div className="flex items-center gap-2">
                   <Button 
                     variant={isPlaying ? 'outline' : 'accent'} 
                     size="sm" 
-                    className="flex-1 xs:flex-none px-4"
+                    className="flex-1 xs:flex-none px-4 min-h-[40px]"
                     onClick={() => setIsPlaying(!isPlaying)}
                   >
                     {isPlaying ? <Pause size={20} /> : <Play size={20} />}
@@ -238,7 +245,7 @@ export default function MainApp({ onBack }: MainAppProps) {
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1 xs:flex-none px-4"
+                    className="flex-1 xs:flex-none px-4 min-h-[40px]"
                     onClick={handleReset}
                   >
                     <RotateCcw size={20} />
@@ -247,91 +254,82 @@ export default function MainApp({ onBack }: MainAppProps) {
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-4">
-              {/* Visualizer Canvas */}
-              <Panel title="Neural Visualization Matrix" className="lg:flex-[3] bg-white relative min-h-[300px] sm:min-h-[400px]">
-                <div className="h-full w-full flex items-center justify-center overflow-auto p-4">
-                  {visualizers[activeAlgo]}
+            {/* 3. Insights Grid (Bottom) */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <Panel title="Algorithm Insights" className="bg-white border-4 border-black shadow-neo-sm">
+                <div className="space-y-6">
+                  <div className="p-4 bg-neo-yellow/10 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Info className="text-neo-blue" size={18} strokeWidth={3} />
+                      <span className="text-xs font-mono font-black uppercase">Core_Logic</span>
+                    </div>
+                    <p className="text-sm font-bold leading-relaxed">
+                      {algo.description}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 gap-3">
+                    <div className="bg-neo-blue text-white p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] font-mono font-black text-white/70 uppercase">Avg_Complexity</div>
+                        <div className="text-2xl font-black font-mono tracking-tighter">{algo.timeComplexity.average}</div>
+                      </div>
+                      <Activity className="text-white/30" size={32} strokeWidth={3} />
+                    </div>
+                    
+                    <div className="bg-neo-green text-black p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
+                      <div>
+                        <div className="text-[10px] font-mono font-black text-black/50 uppercase">Space_Usage</div>
+                        <div className="text-2xl font-black font-mono tracking-tighter">{algo.spaceComplexity}</div>
+                      </div>
+                      <Cpu className="text-black/30" size={32} strokeWidth={3} />
+                    </div>
+                  </div>
+
+                  {algo.steps && (
+                    <div className="space-y-3">
+                      <div className="text-[10px] font-mono font-black uppercase text-neo-black/40 tracking-widest">Execution_Steps</div>
+                      <div className="space-y-2">
+                        {algo.steps.map((s, i) => (
+                          <div key={i} className="flex gap-3 items-start group p-2 border-2 border-black bg-white hover:bg-neo-pink/5 transition-colors">
+                            <span className="bg-neo-pink text-white text-[10px] font-mono font-black px-2 py-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                              {String(i + 1).padStart(2, '0')}
+                            </span>
+                            <p className="text-xs font-black leading-tight uppercase">{s}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Panel>
 
-              {/* Info Panel */}
-              <div className="lg:flex-1 flex flex-col gap-4 lg:max-w-[400px]">
-                <Panel title="Algorithm Insights" className="bg-white border-4 border-black shadow-neo-sm">
-                  <div className="space-y-6">
-                    <div className="p-4 bg-neo-yellow/10 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Info className="text-neo-blue" size={18} strokeWidth={3} />
-                        <span className="text-xs font-mono font-black uppercase">Core_Logic</span>
-                      </div>
-                      <p className="text-sm font-bold leading-relaxed">
-                        {algo.description}
-                      </p>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 gap-3">
-                      <div className="bg-neo-blue text-white p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                        <div>
-                          <div className="text-[10px] font-mono font-black text-white/70 uppercase">Avg_Complexity</div>
-                          <div className="text-2xl font-black font-mono tracking-tighter">{algo.timeComplexity.average}</div>
-                        </div>
-                        <Activity className="text-white/30" size={32} strokeWidth={3} />
-                      </div>
-                      
-                      <div className="bg-neo-green text-black p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center justify-between">
-                        <div>
-                          <div className="text-[10px] font-mono font-black text-black/50 uppercase">Space_Usage</div>
-                          <div className="text-2xl font-black font-mono tracking-tighter">{algo.spaceComplexity}</div>
-                        </div>
-                        <Cpu className="text-black/30" size={32} strokeWidth={3} />
-                      </div>
-                    </div>
+              <Panel title="Source Code" className="bg-neo-black text-neo-green font-mono text-sm border-4 border-black shadow-neo-sm">
+                <div className="flex items-center gap-2 mb-4 text-neo-pink border-b border-neo-pink/20 pb-2">
+                  <Code2 size={16} strokeWidth={3} />
+                  <span className="font-black">ALGO_SOURCE.TXT</span>
+                </div>
+                <pre className="whitespace-pre-wrap leading-relaxed">
+                  {algo.pseudoCode}
+                </pre>
+              </Panel>
 
-                    {algo.steps && (
-                      <div className="space-y-3">
-                        <div className="text-[10px] font-mono font-black uppercase text-neo-black/40 tracking-widest">Execution_Steps</div>
-                        <div className="space-y-2">
-                          {algo.steps.map((s, i) => (
-                            <div key={i} className="flex gap-3 items-start group p-2 border-2 border-black bg-white hover:bg-neo-pink/5 transition-colors">
-                              <span className="bg-neo-pink text-white text-[10px] font-mono font-black px-2 py-1 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                                {String(i + 1).padStart(2, '0')}
-                              </span>
-                              <p className="text-xs font-black leading-tight uppercase">{s}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+              <Panel title="Case Analysis" className="bg-white border-4 border-black shadow-neo-sm">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm p-2 bg-neo-green/10 border-2 border-black">
+                    <span className="font-black uppercase tracking-tighter">Best_Case</span>
+                    <code className="bg-neo-green text-black px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.best}</code>
                   </div>
-                </Panel>
-
-                <Panel title="Source Code" className="bg-neo-black text-neo-green font-mono text-sm border-4 border-black shadow-neo-sm">
-                  <div className="flex items-center gap-2 mb-4 text-neo-pink border-b border-neo-pink/20 pb-2">
-                    <Code2 size={16} strokeWidth={3} />
-                    <span className="font-black">ALGO_SOURCE.TXT</span>
+                  <div className="flex items-center justify-between text-sm p-2 bg-neo-blue/10 border-2 border-black">
+                    <span className="font-black uppercase tracking-tighter">Average_Case</span>
+                    <code className="bg-neo-blue text-white px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.average}</code>
                   </div>
-                  <pre className="whitespace-pre-wrap leading-relaxed">
-                    {algo.pseudoCode}
-                  </pre>
-                </Panel>
-
-                <Panel title="Case Analysis" className="bg-white border-4 border-black shadow-neo-sm">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm p-2 bg-neo-green/10 border-2 border-black">
-                      <span className="font-black uppercase tracking-tighter">Best_Case</span>
-                      <code className="bg-neo-green text-black px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.best}</code>
-                    </div>
-                    <div className="flex items-center justify-between text-sm p-2 bg-neo-blue/10 border-2 border-black">
-                      <span className="font-black uppercase tracking-tighter">Average_Case</span>
-                      <code className="bg-neo-blue text-white px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.average}</code>
-                    </div>
-                    <div className="flex items-center justify-between text-sm p-2 bg-neo-red/10 border-2 border-black">
-                      <span className="font-black uppercase tracking-tighter">Worst_Case</span>
-                      <code className="bg-neo-red text-white px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.worst}</code>
-                    </div>
+                  <div className="flex items-center justify-between text-sm p-2 bg-neo-red/10 border-2 border-black">
+                    <span className="font-black uppercase tracking-tighter">Worst_Case</span>
+                    <code className="bg-neo-red text-white px-2 py-0.5 border-2 border-black font-black">{algo.timeComplexity.worst}</code>
                   </div>
-                </Panel>
-              </div>
+                </div>
+              </Panel>
             </div>
           </div>
         </main>
